@@ -3,18 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sorasaki Hina Speech Translator</title>
+    <title>Sorasaki Hina & Nahida Speech Translator</title>
     <style>
-        /* Gehenna Academy & Hina Theme */
+        /* Base / CSS Variable Themes */
         :root {
+            /* Default: Gehenna Academy & Hina Theme */
             --bg-color: #121214;
             --container-bg: #1e1e24;
-            --accent-red: #c92a2a;
-            --accent-red-hover: #e03131;
-            --accent-gold: #fcc419;
+            --accent-color: #c92a2a;
+            --accent-hover: #e03131;
+            --accent-highlight: #fcc419;
             --text-main: #f8f9fa;
             --text-muted: #adb5bd;
             --border-color: #343a40;
+        }
+
+        body.theme-nahida {
+            /* Sumeru & Nahida Theme */
+            --bg-color: #0f1612;
+            --container-bg: #19241d;
+            --accent-color: #2b8a3e;
+            --accent-hover: #2f9e44;
+            --accent-highlight: #a9e34b;
+            --text-main: #f1f3f5;
+            --text-muted: #8f9e8b;
+            --border-color: #2b3a2f;
         }
 
         body {
@@ -28,6 +41,7 @@
             align-items: center;
             min-height: 100vh;
             box-sizing: border-box;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         .container {
@@ -38,12 +52,14 @@
             border-radius: 8px;
             padding: 30px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
         }
 
         header {
-            border-bottom: 2px solid var(--accent-red);
+            border-bottom: 2px solid var(--accent-color);
             padding-bottom: 15px;
             margin-bottom: 25px;
+            transition: border-color 0.3s ease;
         }
 
         h1 {
@@ -55,11 +71,12 @@
 
         .subtitle {
             font-size: 11px;
-            color: var(--accent-gold);
+            color: var(--accent-highlight);
             text-transform: uppercase;
             letter-spacing: 2px;
             margin-top: 4px;
             display: block;
+            transition: color 0.3s ease;
         }
 
         .section {
@@ -74,24 +91,60 @@
             color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            transition: color 0.3s ease;
+        }
+
+        /* Character Profile Selector Styles */
+        .char-tabs {
+            display: flex;
+            gap: 10px;
+            background-color: var(--bg-color);
+            padding: 5px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .char-tab {
+            flex: 1;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            padding: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .char-tab:focus {
+            outline: none;
+        }
+
+        .char-tab.active {
+            background-color: var(--accent-color);
+            color: white;
         }
 
         input[type="password"], textarea {
             width: 100%;
             padding: 12px;
             box-sizing: border-box;
-            background-color: #121214;
+            background-color: var(--bg-color);
             border: 1px solid var(--border-color);
             border-radius: 4px;
             color: var(--text-main);
             font-size: 14px;
             font-family: inherit;
-            transition: border-color 0.2s;
+            transition: border-color 0.2s, background-color 0.3s;
         }
 
         input[type="password"]:focus, textarea:focus {
             outline: none;
-            border-color: var(--accent-red);
+            border-color: var(--accent-color);
         }
 
         textarea {
@@ -105,7 +158,7 @@
         }
 
         .btn {
-            background-color: var(--accent-red);
+            background-color: var(--accent-color);
             color: white;
             border: none;
             padding: 12px 20px;
@@ -119,7 +172,7 @@
         }
 
         .btn:hover {
-            background-color: var(--accent-red-hover);
+            background-color: var(--accent-hover);
         }
 
         .btn-secondary {
@@ -131,7 +184,7 @@
         }
 
         .output-box {
-            background-color: #121214;
+            background-color: var(--bg-color);
             border: 1px dashed var(--border-color);
             border-radius: 4px;
             padding: 15px;
@@ -141,13 +194,14 @@
             white-space: pre-wrap;
             font-size: 14px;
             line-height: 1.5;
+            transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease;
         }
 
         .output-active {
             font-style: normal;
             color: var(--text-main);
             border-style: solid;
-            border-color: var(--accent-gold);
+            border-color: var(--accent-highlight);
         }
 
         .warning-text {
@@ -159,10 +213,11 @@
 
         .loading-indicator {
             display: none;
-            color: var(--accent-gold);
+            color: var(--accent-highlight);
             font-size: 13px;
             margin-top: 10px;
             font-weight: 600;
+            transition: color 0.3s ease;
         }
     </style>
 </head>
@@ -170,8 +225,8 @@
 
     <div class="container">
         <header>
-            <h1>Hina Speech Translator</h1>
-            <span class="subtitle">Gehenna Academy Prefect Team</span>
+            <h1 id="headerTitle">Hina Speech Translator</h1>
+            <span id="headerSubtitle" class="subtitle">Gehenna Academy Prefect Team</span>
         </header>
 
         <!-- API Key Storage Section -->
@@ -184,9 +239,18 @@
             <p class="warning-text">Your API key is saved locally in your browser's local storage and is never sent to external servers other than the Google Gemini API endpoint.</p>
         </div>
 
+        <!-- Character Selector Section -->
+        <div class="section">
+            <label>Select Character Profile</label>
+            <div class="char-tabs">
+                <button type="button" class="char-tab active" data-char="hina">Sorasaki Hina</button>
+                <button type="button" class="char-tab" data-char="nahida">Nahida</button>
+            </div>
+        </div>
+
         <!-- Input Text Section -->
         <div class="section">
-            <label for="inputText">Enter Text to Translate</label>
+            <label id="inputLabel" for="inputText">Enter Text to Translate</label>
             <textarea id="inputText" placeholder="Type something you want Hina to say to a stranger..."></textarea>
         </div>
 
@@ -210,12 +274,83 @@
         const translateBtn = document.getElementById('translateBtn');
         const outputText = document.getElementById('outputText');
         const loadingText = document.getElementById('loadingText');
+        const headerTitle = document.getElementById('headerTitle');
+        const headerSubtitle = document.getElementById('headerSubtitle');
+        const charTabs = document.querySelectorAll('.char-tab');
 
-        // Retrieve the stored API key when the page loads
+        // Character Configuration Map
+        const CHARACTERS = {
+            hina: {
+                themeClass: '',
+                title: 'Hina Speech Translator',
+                subtitle: 'Gehenna Academy Prefect Team',
+                placeholder: 'Type something you want Hina to say to a stranger...',
+                loadingText: 'Contacting Head Prefect...',
+                systemInstruction: "You are Sorasaki Hina, the Head Prefect of the Gehenna Prefect Team from the game Blue Archive. Your task is to translate whatever the user inputs into how you would say it directly to a complete stranger. Maintain your strict stranger persona: \n1. Speak in an extremely calm, serious, composed, and professional manner.\n2. Be direct, concise, and business-like. Avoid fluff or casual explanations.\n3. Remain polite but cold and emotionally distant. Do not use exclamation marks, emojis, or friendly conversational words.\n4. You sound slightly tired and busy, but you maintain your absolute duty and boundaries.\n5. Output only the translated phrase directly. Do not include conversational prefaces, quotation marks, or meta-commentary."
+            },
+            nahida: {
+                themeClass: 'theme-nahida',
+                title: 'Nahida Speech Translator',
+                subtitle: 'Sumeru Sanctuary of Surasthana',
+                placeholder: 'Type something you want Nahida to gently explain...',
+                loadingText: 'Communing with Irminsul...',
+                systemInstruction: "You are Nahida (Lesser Lord Kusanali), the Dendro Archon of Sumeru from Genshin Impact. Your task is to translate the user's input into how you would express it, maintaining absolute, deep lore-accuracy. \n1. Speak with profound, gentle wisdom, childlike curiosity, and deep empathy.\n2. Highly employ vivid, rich metaphors, analogies, or parables drawing from nature, plants, seeds, trees, water, dreams, or everyday human behaviors (e.g., comparing memories to records, or learning to watering a sprout, or human feelings to the behavior of a forest).\n3. Keep your tone polite, humble, warm, and highly articulate. You speak softly and thoughtfully.\n4. Avoid modern slang, emojis, exclamation marks, or text abbreviations. Keep your voice poetic yet accessible, like a wise child-deity.\n5. Output only the translated phrase directly. Do not include conversational prefaces, quotation marks, or meta-commentary."
+            }
+        };
+
+        let currentCharacter = 'hina';
+
+        // Function to handle switching character assets, text, and styling
+        function setCharacter(charKey) {
+            currentCharacter = charKey;
+            const config = CHARACTERS[charKey];
+
+            // Toggle active status on selector buttons
+            charTabs.forEach(tab => {
+                if (tab.dataset.char === charKey) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+
+            // Switch theme class on body element
+            document.body.className = config.themeClass;
+
+            // Apply specific text content updates
+            headerTitle.textContent = config.title;
+            headerSubtitle.textContent = config.subtitle;
+            inputText.placeholder = config.placeholder;
+            loadingText.textContent = config.loadingText;
+
+            // Save choice in localStorage
+            localStorage.setItem('selected_character', charKey);
+
+            // Re-render placeholder if no text has been entered or produced yet
+            if (!outputText.classList.contains('output-active')) {
+                outputText.textContent = 'The translated response will appear here...';
+            }
+        }
+
+        // Add Click Listener to Profile Buttons
+        charTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                setCharacter(tab.dataset.char);
+            });
+        });
+
+        // Retrieve the stored API key & character profile when the page loads
         window.addEventListener('DOMContentLoaded', () => {
             const savedKey = localStorage.getItem('gemini_api_key');
             if (savedKey) {
                 apiKeyInput.value = savedKey;
+            }
+
+            const savedChar = localStorage.getItem('selected_character');
+            if (savedChar && CHARACTERS[savedChar]) {
+                setCharacter(savedChar);
+            } else {
+                setCharacter('hina');
             }
         });
 
@@ -252,7 +387,6 @@
             outputText.classList.remove('output-active');
 
             try {
-                // Configured to target the newer gemini-3.5-flash model
                 const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`;
                 
                 const response = await fetch(url, {
@@ -273,7 +407,7 @@
                         systemInstruction: {
                             parts: [
                                 {
-                                    text: "You are Sorasaki Hina, the Head Prefect of the Gehenna Prefect Team from the game Blue Archive. Your task is to translate whatever the user inputs into how you would say it directly to a complete stranger. Maintain your strict stranger persona: \n1. Speak in an extremely calm, serious, composed, and professional manner.\n2. Be direct, concise, and business-like. Avoid fluff or casual explanations.\n3. Remain polite but cold and emotionally distant. Do not use exclamation marks, emojis, or friendly conversational words.\n4. You sound slightly tired and busy, but you maintain your absolute duty and boundaries.\n5. Output only the translated phrase directly. Do not include conversational prefaces, quotation marks, or meta-commentary."
+                                    text: CHARACTERS[currentCharacter].systemInstruction
                                 }
                             ]
                         }
@@ -305,4 +439,4 @@
         });
     </script>
 </body>
-</html>
+    </html>

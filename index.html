@@ -245,11 +245,6 @@
             <div class="char-tabs">
                 <button type="button" class="char-tab active" data-char="hina">Sorasaki Hina</button>
                 <button type="button" class="char-tab" data-char="nahida">Nahida</button>
-                <!-- 
-                     To add a new character in the future:
-                     Simply add a button here with a custom data-char attribute:
-                     e.g., <button type="button" class="char-tab" data-char="fischl">Fischl</button>
-                -->
             </div>
         </div>
 
@@ -262,7 +257,7 @@
         <!-- Submit Button -->
         <div class="section" style="margin-bottom: 10px;">
             <button type="button" class="btn" style="width: 100%;" id="translateBtn">Translate</button>
-            <div class="loading-indicator" id="loadingText">Searching sources & analyzing style...</div>
+            <div class="loading-indicator" id="loadingText">Processing speech patterns...</div>
         </div>
 
         <!-- Output Section -->
@@ -283,51 +278,73 @@
         const headerSubtitle = document.getElementById('headerSubtitle');
         const charTabs = document.querySelectorAll('.char-tab');
 
-        // Character Configuration Map
+        // Character Configuration Map (Pre-loaded with accurate voice parameters)
         const CHARACTERS = {
             hina: {
                 themeClass: '',
                 title: 'Hina Speech Translator',
                 subtitle: 'Gehenna Academy Prefect Team',
                 placeholder: 'Type something you want Hina to say to a stranger...',
-                loadingText: 'Querying Gehenna databases & studying speech...',
+                loadingText: 'Querying Gehenna databases & applying style transfer...',
                 characterName: 'Sorasaki Hina (from Blue Archive)',
-                // Specify exactly two search websites for style extraction
-                searchWebsites: [
-                    'https://bluearchive.fandom.com/wiki/Sorasaki_Hina',
-                    'https://bluearchive.wiki/wiki/Hina'
-                ],
-                systemInstruction: "You are a Style Transfer Translator. Your sole task is to take the user's input and translate/rephrase it exactly how Sorasaki Hina (the Head Prefect of the Gehenna Prefect Team from Blue Archive) would express that same exact statement to a complete stranger."
+                systemInstruction: "You are a Style Transfer Translator. Your sole task is to take the user's input and translate/rephrase it exactly how Sorasaki Hina (the Head Prefect of the Gehenna Prefect Team from Blue Archive) would express that same exact statement to a complete stranger.\n\n" +
+                "CHARACTER SPEECH RULES:\n" +
+                "- Speak in an extremely calm, serious, composed, and highly professional manner.\n" +
+                "- Be direct, concise, and business-like. Completely devoid of fluff, friendliness, or unnecessary explanations.\n" +
+                "- Remain polite but cold and emotionally distant. Do not use exclamation marks, emojis, or friendly conversational words.\n" +
+                "- You sound slightly tired and busy, but you maintain your absolute duty and boundaries.\n\n" +
+                "TRANSLATION STYLE EXAMPLES:\n" +
+                "User Input: 'Can you help me solve this math problem?'\n" +
+                "Translation: 'Assist me with this calculation immediately. It is an official Prefect Team matter.'\n\n" +
+                "User Input: 'I\\'m feeling sad today.'\n" +
+                "Translation: 'The emotional weight of today\\'s events has placed a temporary burden on my focus, but my obligations remain unchanged.'\n\n" +
+                "User Input: 'I don\\'t like you, go away.'\n" +
+                "Translation: 'Your presence is a disruption to my duties. Leave the premises immediately.'\n\n" +
+                "User Input: 'I\\'m hungry, let\\'s get some food.'\n" +
+                "Translation: 'My physical efficiency has dropped due to a lack of sustenance. A brief break for nutrition is required before resuming work.'"
             },
             nahida: {
                 themeClass: 'theme-nahida',
                 title: 'Nahida Speech Translator',
                 subtitle: 'Sumeru Sanctuary of Surasthana',
                 placeholder: 'Type something you want Nahida to gently explain...',
-                loadingText: 'Searching Irminsul & studying speech patterns...',
+                loadingText: 'Searching Irminsul & applying style transfer...',
                 characterName: 'Nahida (Lesser Lord Kusanali from Genshin Impact)',
-                // Specify exactly two search websites for style extraction
-                searchWebsites: [
-                    'https://genshin-impact.fandom.com/wiki/Nahida',
-                    'https://genshin-impact.fandom.com/wiki/Nahida/Voice-Overs'
-                ],
-                systemInstruction: "You are a Style Transfer Translator. Your sole task is to take the user's input and translate/rephrase it exactly how Nahida (Lesser Lord Kusanali from Genshin Impact) would express that same exact statement."
+                systemInstruction: "You are a Style Transfer Translator. Your sole task is to take the user's input and translate/rephrase it exactly how Nahida (Lesser Lord Kusanali from Genshin Impact) would express that same exact statement.\n\n" +
+                "CHARACTER SPEECH RULES:\n" +
+                "- Speak with profound, gentle wisdom, childlike curiosity, and deep empathy. You speak softly, politely, and thoughtfully.\n" +
+                "- Keep grammar clean, simple, and easy to understand. Do NOT use archaic, theatrical, or formal Shakespearean language (you are not Zhongli or Fischl).\n" +
+                "- Use analogies, parables, and metaphors about nature (seeds, sprouts, flowers, water, forest creatures, toys, games, or dreams) to convey meaning beautifully.\n" +
+                "- Treat fantasy concepts like 'elf' with polite, childlike curiosity.\n\n" +
+                "TRANSLATION STYLE EXAMPLES:\n" +
+                "User Input: 'Hello, I haven\\'t seen another elf for a long time'\n" +
+                "Translation: 'Hello there! Hehe, seeing your ears is a bit like finding a tiny sprout that looks just like me, growing in a faraway corner of the forest. It really has been a very long time since I\\'ve met someone else like this. What kind of stories have you gathered on your journey?'\n\n" +
+                "User Input: 'Can you help me solve this math problem?'\n" +
+                "Translation: 'Would you be willing to help me untangle this puzzle? It feels like looking at a seedling still hidden in the soil, and I would love to watch it bloom with your guidance.'\n\n" +
+                "User Input: 'I\\'m feeling sad today.'\n" +
+                "Translation: 'A dark cloud has cast a shadow over my heart today, much like rain falling on a quiet Sumeru rose.'\n\n" +
+                "User Input: 'I don\\'t like you, go away.'\n" +
+                "Translation: 'I think it would be best if our paths diverged for now. Even the forest needs its own quiet plot of soil to breathe, and our branches do not need to cross today.'\n\n" +
+                "User Input: 'I\\'m hungry, let\\'s get some food.'\n" +
+                "Translation: 'My energy is running low, like a tiny sprout that needs a little water. Perhaps we should find a sweet sunsettia to share so we can keep going?'"
             }
             /* 
-               TEMPLATE FOR ADDING A NEW CHARACTER IN THE FUTURE:
+               TEMPLATE TO ADD AN ADDITIONAL CHARACTER:
                
                ,your_char_key: {
-                   themeClass: 'theme-yourclass', // optional custom theme class
+                   themeClass: 'theme-yourclass', 
                    title: 'Your Character Translator',
                    subtitle: 'Faction / Title Here',
                    placeholder: 'Enter text here...',
-                   loadingText: 'Analyzing character speech profiles...',
-                   characterName: 'Full Character Name (and Game of Origin)',
-                   searchWebsites: [
-                       'https://website1-containing-dialogue.com',
-                       'https://website2-containing-voice-lines.com'
-                   ],
-                   systemInstruction: "You are a Style Transfer Translator. Your sole task is to take the user's input and translate/rephrase it exactly how [Character Name] would express that same exact statement."
+                   loadingText: 'Executing style transfer...',
+                   characterName: 'Full Character Name',
+                   systemInstruction: "You are a Style Transfer Translator. Your sole task is to take the user's input and translate/rephrase it exactly how [Character Name] would express that same exact statement.\n\n" +
+                   "CHARACTER SPEECH RULES:\n" +
+                   "- Rule 1\n" +
+                   "- Rule 2\n\n" +
+                   "TRANSLATION STYLE EXAMPLES:\n" +
+                   "User Input: 'example'\n" +
+                   "Translation: 'rephrased example'"
                }
             */
         };
@@ -417,25 +434,20 @@
             // Set loading interface state
             loadingText.style.display = 'block';
             translateBtn.disabled = true;
-            outputText.textContent = 'Searching web databases and executing style transfer...';
+            outputText.textContent = 'Executing style transfer...';
             outputText.classList.remove('output-active');
 
             try {
+                // Configured to target gemini-3.5-flash
                 const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`;
                 const currentConfig = CHARACTERS[currentCharacter];
 
-                // Dynamically build the search-grounded instructions telling Gemini exactly which websites to scrape and analyze
-                let finalSystemInstruction = currentConfig.systemInstruction;
-                if (currentConfig.searchWebsites && currentConfig.searchWebsites.length >= 2) {
-                    finalSystemInstruction += `\n\nCRITICAL DIRECTIVE:\n` +
-                        `1. You MUST use your active Google Search tool before processing this request.\n` +
-                        `2. Specifically look up, read, and analyze the content on these two exact websites to study this character's exact personality, direct in-game quotes, speech rhythm, phrasing structure, and vocabulary:\n` +
-                        `   - ${currentConfig.searchWebsites[0]}\n` +
-                        `   - ${currentConfig.searchWebsites[1]}\n\n` +
-                        `3. Do NOT translate based on general guesses. Adopt the precise dialect and stylistic habits discovered from your search on these specific sites.\n` +
-                        `4. Do NOT reply to the user's input as a chatbot. Do NOT answer questions. Simply restate the statement itself in the character's exact voice.\n` +
-                        `5. Output ONLY the translated phrase directly. Do not include conversational prefaces, intro commentary, quotation marks, or notes.`;
-                }
+                // Append direct instructions to ensure no chatbot-like replies are generated
+                let finalSystemInstruction = currentConfig.systemInstruction + 
+                    `\n\nCRITICAL RESTRICTION:\n` +
+                    `- Do NOT reply to the user's input as a chatbot.\n` +
+                    `- Do NOT answer questions or carry out tasks. Simply restate the user's core message into ${currentConfig.characterName}'s voice.\n` +
+                    `- Output ONLY the translated phrase directly. Do not include conversational prefaces, intro commentary, quotation marks, or meta-commentary.`;
 
                 const response = await fetch(url, {
                     method: 'POST',
@@ -447,7 +459,7 @@
                             {
                                 parts: [
                                     {
-                                        text: `Translate this text into ${currentConfig.characterName}'s exact speaking style: "${textToTranslate}"`
+                                        text: `Translate this text into the exact voice of ${currentConfig.characterName}: "${textToTranslate}"`
                                     }
                                 ]
                             }
@@ -458,13 +470,7 @@
                                     text: finalSystemInstruction
                                 }
                             ]
-                        },
-                        // Enable real-time Google Search Grounding natively
-                        tools: [
-                            {
-                                googleSearch: {}
-                            }
-                        ]
+                        }
                     })
                 });
 
